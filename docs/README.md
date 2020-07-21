@@ -249,25 +249,48 @@ export default () => {
   )
 
   return html`
-    <ul>
+    <table>
+      <thead>
+        <tr>
+          <th>Variable Name</td>
+          <th>Value</th>
+        </tr>
+      </thead>
+      <tbody>
       ${Object.keys(vars).map((name) => {
         const value = vars[name]
-        return html`<li key=${name}>
-          <code style="display:inline-block;margin-right:10px;">${name}</code
-          >${/-(bg|fg)$/.test(name)
-            ? html`<span
-                style=${{
-                  background: value,
-                  height: 15,
-                  width: 15,
-                  display: 'inline-block',
-                  border: '1px solid #000',
-                }}
-              ></span>`
-            : html`<code>${value}</code>`}
-        </li>`
+        const isColor = /-(bg|fg)$/.test(name)
+        return html`<tr key=${name}>
+          <td>
+            <code style="display:inline-block;margin-right:10px;">${name}</code>
+          </td>
+          <td style=${{paddingTop: '4px'}}>
+            ${isColor
+              ? html`<div
+                  style=${{
+                    background: value,
+                    display: 'inline-flex',
+                    border: '1px solid #000',
+                    fontSize: '.875rem',
+                  }}
+                >
+                  <span
+                    style=${{
+                      padding: '0 5px',
+                      width: '20px',
+                      borderRight: '1px solid #000',
+                    }}
+                  ></span
+                  ><span style=${{ background: 'white', padding: '0 5px' }}
+                    >${value}</span
+                  >
+                </div>`
+              : html`<code>${value}</code>`}
+          </td>
+        </tr>`
       })}
-    </ul>
+      </tbody>
+    </table>
   `
 }
 ```
@@ -421,6 +444,13 @@ export default ({ count }) => {
 }
 ```
 ````
+
+#### theme
+
+- Type: `default` or `dark`
+- Default: `default`
+
+Choose a CSS theme.
 
 ## Browser support
 
