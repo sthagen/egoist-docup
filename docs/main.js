@@ -27,7 +27,7 @@ init({
     },
     {
       text: 'Donate',
-      link: 'https://github.com/sponsors/egoist'
-    }
+      link: 'https://github.com/sponsors/egoist',
+    },
   ],
 })
