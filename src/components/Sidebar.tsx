@@ -73,7 +73,7 @@ export const Sidebar: FunctionComponent<{
           return (
             <a
               class={
-                `flex px-5 py-1 items-center menu_item` +
+                `block px-5 py-1 menu_item` +
                 (item.slug === hash.slice(1) ? ' menu_item__active' : '')
               }
               onClick={handleSidebarItemClick}
@@ -81,9 +81,8 @@ export const Sidebar: FunctionComponent<{
               key={index}
               data-depth={item.depth}
               href={`#${item.slug}`}
-            >
-              {item.text}
-            </a>
+              dangerouslySetInnerHTML={{ __html: item.text }}
+            ></a>
           )
         })}
       </div>
