@@ -26,6 +26,14 @@ const config: UserConfig = {
     jsxFactory: 'h',
     jsxFragment: 'Fragment',
   },
+  resolve: {
+    alias: {
+      renderer:
+        process.env.NODE_ENV === 'fre'
+          ? path.resolve('src/renderer/fre.ts')
+          : path.resolve('src/renderer/preact.ts'),
+    },
+  },
   plugins: [
     prefresh(),
     windicss({
@@ -35,6 +43,22 @@ const config: UserConfig = {
       },
     }),
   ],
+  build: {
+    target: ['es2020', 'safari14', 'chrome88'],
+    minify: !process.env.DEBUG,
+    polyfillDynamicImport: false,
+    rollupOptions: {
+      input: [
+        path.join(__dirname, 'main.ts'),
+        path.join(__dirname, 'index.html'),
+      ],
+      preserveEntrySignatures: 'strict',
+      output: {
+        // Disable vendor chunk, make everything bundled in a single file
+        manualChunks: undefined,
+      },
+    },
+  },
 }
 
 export default config

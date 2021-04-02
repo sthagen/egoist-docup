@@ -3,7 +3,8 @@ import './css/prism.css'
 import './css/main.css'
 import './css/content.css'
 import { SetRequired } from 'type-fest'
-import { h, render } from 'preact'
+import htm from 'htm'
+import { h, render } from 'renderer'
 import { App } from './components/App'
 
 export interface NavLink {
@@ -66,3 +67,7 @@ export function init(options: Options) {
 }
 
 export const version = DOCUP_VERSION
+
+export * from 'renderer'
+
+export const html = htm.bind(h)

@@ -1,5 +1,4 @@
-import { h, FunctionComponent } from 'preact'
-import { useEffect, useState } from 'preact/hooks'
+import { h, FC, useEffect, useState } from 'renderer'
 import inView from 'element-in-view'
 import { InstanceOptions } from '../docup'
 import { Navbar } from './Navbar'
@@ -13,6 +12,7 @@ import {
   throttle,
   getFileUrl,
 } from '../utils'
+import { initMarkdownComponentsProxy, setMdProps } from '../markdown-component'
 
 const handleScroll = throttle(() => {
   const headings = document.querySelectorAll('.content .heading')
@@ -35,9 +35,7 @@ const handleScroll = throttle(() => {
 
 export type LoadingState = 'loading' | 'success' | 'error'
 
-export const App: FunctionComponent<{ options: InstanceOptions }> = ({
-  options,
-}) => {
+export const App: FC<{ options: InstanceOptions }> = ({ options }) => {
   const navLinks = options.navLinks || []
   const [html, setHtml] = useState('')
   const [loadingState, setLoadingState] = useState<LoadingState>('loading')
@@ -47,6 +45,8 @@ export const App: FunctionComponent<{ options: InstanceOptions }> = ({
   const toggleSidebar = () => setShowSidebar(!showSidebar)
 
   useEffect(() => {
+    setMdProps(options.props)
+    initMarkdownComponentsProxy()
     Promise.all([
       fetch(getFileUrl(options.root, options.indexFile, location.pathname)),
       options.highlightLanguages && loadLanguages(options.highlightLanguages),
@@ -55,9 +55,7 @@ export const App: FunctionComponent<{ options: InstanceOptions }> = ({
         return res.text()
       })
       .then((text) => {
-        const { html, menu, fns } = renderMarkdown(text, {
-          props: options.props,
-        })
+        const { html, menu, fns } = renderMarkdown(text)
         setHtml(html)
         setMenu(menu)
         setLoadingState('success')

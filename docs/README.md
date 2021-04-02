@@ -24,14 +24,14 @@ Create an HTML file: `index.html` which will be be homepage of your documentatio
     <!-- Stylesheet -->
     <link
       rel="stylesheet"
-      href="https://unpkg.com/@egoist/docup@1/dist/docup.min.css"
+      href="https://unpkg.com/@egoist/docup@2/dist/docup.min.css"
     />
   </head>
   <body>
-    <!-- Script -->
-    <script src="https://unpkg.com/@egoist/docup@1/dist/docup.min.js"></script>
     <!-- Start app -->
-    <script>
+    <script type="module">
+      import * as docup from 'https://unpkg.com/@egoist/docup@2/dist/docup.min.js'
+
       docup.init({
         // ..options
       })
@@ -138,24 +138,20 @@ docup.init({
 })
 ```
 
-Available languages:
-
 ```js preact
-const { useState } = hooks
-
+import { useState, html } from 'docup'
 export default ({ langs }) => {
-  const [showAll, setShowAll] = useState(false)
+  const [show, setShow] = useState(false)
   return html`<div>
-    <ul>
-      ${(showAll ? langs : langs.slice(0, 5)).map(
-        (lang) => html`<li key="{lang}">${lang}</li>`
-      )}
-    </ul>
+    ${show &&
+    html`<ul>
+      ${langs.map((lang) => html`<li key="{lang}">${lang}</li>`)}
+    </ul>`}
     <button
       style="margin-top:20px;border:1px solid; font-size: 14px; padding:5px;"
-      onClick=${() => setShowAll(!showAll)}
+      onClick=${() => setShow(!show)}
     >
-      Show ${showAll ? 'less' : 'all'}..
+      Show ${show ? 'hide languages' : 'all supported languages'}..
     </button>
   </div>`
 }
@@ -163,11 +159,11 @@ export default ({ langs }) => {
 
 ### Inline Component
 
-You can inline Preact components inside Markdown file like this:
+You can inline Preact, React and Vue 3 components inside Markdown file like this:
 
 ````markdown
 ```js preact
-const { useState } = hooks
+import { useState, html } from 'docup'
 
 export default () => {
   const [count, setCount] = useState(0)
@@ -184,7 +180,7 @@ export default () => {
 Write `preact` next to the language name and we will render the code as a Preact component in place:
 
 ```js preact
-const { useState } = hooks
+import { useState, html } from 'docup'
 
 export default () => {
   const [count, setCount] = useState(0)
@@ -197,14 +193,45 @@ export default () => {
 }
 ```
 
-> Warning: Note that you can't use JSX here, because it's not supported by browsers natively. But you can use the `html` function which is powered by [developit/htm](https://github.com/developit/htm).
+> Warning: Note that you can't use JSX here, because it's not supported by browsers natively. But you can use the `html` function which is powered by [developit/htm](https://github.com/developit/htm). By default `docup` re-exports all functions from `preact` plus a preact-powered `html` function.
+
+See another example with React:
+
+```js react,keep
+import React from 'react'
+import Trend from 'react-trend'
+import htm from 'htm'
+
+const html = htm.bind(React.createElement)
+
+export default () => html`<${Trend}
+  smooth
+  autoDraw
+  autoDrawDuration="{3000}"
+  autoDrawEasing="ease-out"
+  data=${[0, 2, 5, 9, 5, 10, 3, 5, 0, 0, 1, 8, 2, 9, 0]}
+  gradient=${['#00c6ff', '#F0F', '#FF0']}
+  radius=${10}
+  strokeWidth=${2}
+  strokeLinecap=${'butt'}
+/>`
+```
+
+When the code block is recognized as a component, the code itself will be removed from the markdown, if you want to show the code block below the rendered component, you can use the `keep` keyword:
+
+````markdown
+```js react,keep
+export default () => {}
+```
+````
+
+If you want to show the code block above the component, use `keepAbove` instead.
 
 ### CSS Variables
 
 ```js preact
-const { useEffect, useState } = hooks
+import { html } from 'docup'
 
-// could pass in an array of specific stylesheets for optimization
 function getAllCSSVariableNames(styleSheets = document.styleSheets) {
   var cssVars = []
   // loop each stylesheet
@@ -218,7 +245,11 @@ function getAllCSSVariableNames(styleSheets = document.styleSheets) {
           for (var k = 0; k < styleSheets[i].cssRules[j].style.length; k++) {
             let name = styleSheets[i].cssRules[j].style[k]
             // test name for css variable signature and uniqueness
-            if (name.startsWith('--') && cssVars.indexOf(name) == -1) {
+            if (
+              name.startsWith('--') &&
+              cssVars.indexOf(name) == -1 &&
+              !name.startsWith('--tw-')
+            ) {
               cssVars.push(name)
             }
           }
@@ -264,7 +295,7 @@ export default () => {
           <td>
             <code style="display:inline-block;margin-right:10px;">${name}</code>
           </td>
-          <td style=${{paddingTop: '4px'}}>
+          <td style=${{ paddingTop: '4px' }}>
             ${isColor
               ? html`<div
                   style=${{
@@ -439,6 +470,7 @@ Then you can inline component and use props in Markdown:
 
 ````markdown
 ```js preact
+import { html } from 'docup'
 export default ({ count }) => {
   return html`<button>${count}</button>`
 }
@@ -469,3 +501,4 @@ Support this project via [GitHub Sponsors](https://github.com/sponsors/egoist).
 ## License
 
 MIT &copy; EGOIST
+```
